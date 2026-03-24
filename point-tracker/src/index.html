@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>International Thespian Society - Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
+  <style>
+    .progress-bar {
+      height: 12px;
+      background: #22c55e;
+      border-radius: 9999px;
+      transition: width 0.4s ease;
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="https://via.placeholder.com/50x50/1e3a8a/ffffff?text=ITS" 
+             alt="Logo" class="w-12 h-12"/>
+        <div>
+          <span class="text-[#1e3a8a] font-bold text-xl tracking-tight">INTERNATIONAL</span><br>
+          <span class="text-yellow-500 font-bold text-xl tracking-tight -mt-2 block">THESPIAN SOCIETY</span>
+        </div>
+      </div>
+
+      <nav class="flex items-center gap-8 text-sm font-medium">
+        <a href="#" class="text-gray-700 hover:text-black">HOMEPAGE</a>
+        <a href="#" class="text-gray-700 hover:text-black">STUDENT LIST</a>
+        <a href="#" class="text-gray-700 hover:text-black">ADD POINTS</a>
+        <a href="#" class="text-gray-700 hover:text-black">LOGOUT</a>
+      </nav>
+
+      <div class="flex items-center gap-6">
+        <i class="fa-solid fa-globe text-2xl text-gray-600"></i>
+        <i class="fa-solid fa-bell text-2xl text-gray-600"></i>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto px-6 py-8">
+
+    <!-- Welcome -->
+    <div class="flex items-center justify-between mb-8">
+      <h1 class="text-2xl font-semibold">
+        Welcome Back, <span class="font-bold">Ms Studniski (Troupe Director)</span> 
+        <span class="text-3xl">👤</span>
+      </h1>
+    </div>
+
+    <!-- Students / Progress Section -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold">Students / Progress:</h2>
+      <button class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black">
+        Filter
+        <i class="fa-solid fa-sliders-h"></i>
+      </button>
+    </div>
+
+    <!-- Student Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Student Card -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Rishi Boyat</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">6.5</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[65%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Repeat for other students -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">John Doe</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">6</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[60%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Jamal Adams</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">5</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[50%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Peter Burwash</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">4.5</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[45%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Jamie Chen</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">4.5</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[45%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Charlie Kevin</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">4</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[40%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Bob Marley</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">2</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[20%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">William Parsley</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">2</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[20%]"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Jermaine Cole</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">1.5</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[15%]"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>
