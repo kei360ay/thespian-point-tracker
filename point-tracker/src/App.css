@@ -60,6 +60,23 @@ h2 {
   cursor: not-allowed;
 }
 
+.seed-button {
+  border-radius: 8px;
+  border: 1px solid #2d3f61;
+  background: #ffffff;
+  color: #2d3f61;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 14px;
+  cursor: pointer;
+}
+
+.seed-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .error-text {
   color: #9c1a1a;
   margin: 0 0 10px;
@@ -73,11 +90,34 @@ h2 {
 
 .student-list li {
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto auto auto;
   gap: 10px;
   align-items: center;
   border-top: 1px solid #d5deea;
   padding: 10px 0;
+}
+
+.plus-button {
+  width: 34px;
+  height: 34px;
+  border-radius: 999px;
+  border: 1px solid #1d4f91;
+  background: #1d4f91;
+  color: #ffffff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.add-hours-form {
+  grid-template-columns: 1fr auto auto;
+}
+
+.secondary-button {
+  background: #ffffff;
+  color: #1d4f91;
+  border: 1px solid #1d4f91;
 }
 
 @media (max-width: 720px) {
