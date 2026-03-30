@@ -2,37 +2,91 @@
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
+.tracker-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8efe2 0%, #d9e7f2 100%);
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+  padding: 20px;
+}
+
+.tracker-card {
+  width: min(680px, 100%);
+  background: #fffdf8;
+  border: 2px solid #11203b;
+  border-radius: 14px;
+  padding: 28px;
+  box-shadow: 8px 8px 0 #11203b;
+}
+
+h1,
+h2 {
+  margin: 0 0 12px;
+  color: #11203b;
+}
+
+.subheading {
+  margin: 0 0 18px;
+  color: #2d3f61;
+  font-size: 0.95rem;
+}
+
+.tracker-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.tracker-form input,
+.tracker-form button {
+  border-radius: 8px;
+  border: 1px solid #4b5d7d;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+.tracker-form button {
+  background: #1d4f91;
   color: white;
+  border-color: #1d4f91;
+  cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+.tracker-form button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.error-text {
+  color: #9c1a1a;
+  margin: 0 0 10px;
+}
+
+.student-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.student-list li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  border-top: 1px solid #d5deea;
+  padding: 10px 0;
+}
+
+@media (max-width: 720px) {
+  .tracker-form {
+    grid-template-columns: 1fr;
   }
-  to {
-    transform: rotate(360deg);
+
+  .student-list li {
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 }
