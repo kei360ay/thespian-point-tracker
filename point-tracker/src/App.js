@@ -1,18 +1,26 @@
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { db } from "./firebase";
 
-const EXAMPLE_STUDENTS = [
-  "alex-johnson",
-  "maria-garcia",
-  "noah-lee",
-  "zoe-patel",
-  "liam-walker",
+const SEED_STUDENTS = [
+  { id: "alex-johnson", name: "Alex Johnson" },
+  { id: "maria-garcia", name: "Maria Garcia" },
+  { id: "noah-lee", name: "Noah Lee" },
+  { id: "zoe-patel", name: "Zoe Patel" },
+  { id: "liam-walker", name: "Liam Walker" },
 ];
 
+const SEEDED_NAME_BY_ID = SEED_STUDENTS.reduce((accumulator, student) => {
+  accumulator[student.id] = student.name;
+  return accumulator;
+}, {});
+
 const getPointsFromHours = (hours) => Math.floor(Number(hours) / 10);
+
+const getDisplayName = (id) => SEEDED_NAME_BY_ID[id] ?? id;
+const getProgressPercent = (points) => Math.max(0, Math.min(100, Number(points) * 10));
 
 
 function App() {
@@ -26,33 +34,24 @@ function App() {
   const [error, setError] = useState("");
 
   const fetchStudents = useCallback(async () => {
-    const studentSnapshots = await Promise.all(
-      EXAMPLE_STUDENTS.map((id) => getDoc(doc(db, "students", id)))
-    );
+    const querySnapshot = await getDocs(collection(db, "students"));
 
-    const studentsData = studentSnapshots.map((studentSnapshot, index) => {
-      const id = EXAMPLE_STUDENTS[index];
-
-      if (!studentSnapshot.exists()) {
-        return {
-          id,
-          hoursworked: 0,
-          points: 0,
-        };
-      }
-
-      const data = studentSnapshot.data();
+    const studentsData = querySnapshot.docs.map((studentDoc) => {
+      const data = studentDoc.data();
       const hours = Number(data.hoursworked ?? 0);
       const storedPoints = Number(data.points);
 
       return {
-        id,
+        id: studentDoc.id,
+        name: getDisplayName(studentDoc.id),
         hoursworked: hours,
         points: Number.isNaN(storedPoints)
           ? getPointsFromHours(hours)
           : storedPoints,
       };
     });
+
+    studentsData.sort((a, b) => a.id.localeCompare(b.id));
 
     setStudents(studentsData);
   }, []);
@@ -106,9 +105,9 @@ function App() {
 
     try {
       await Promise.all(
-        EXAMPLE_STUDENTS.map((id) =>
+        SEED_STUDENTS.map((student) =>
           setDoc(
-            doc(db, "students", id),
+            doc(db, "students", student.id),
             { hoursworked: 0, points: 0 },
             { merge: true }
           )
@@ -212,24 +211,40 @@ function App() {
         {error && <p className="error-text">{error}</p>}
 
         <section>
-          <h2>Students</h2>
-          <ul className="student-list">
+          <div className="section-heading-row">
+            <h2>Students / Progress</h2>
+          </div>
+          <div className="student-grid">
             {students.map((student) => (
-              <li key={student.id}>
-                <strong>{student.id}</strong>
-                <span>{student.hoursworked} hours</span>
-                <span>{student.points} points</span>
-                <button
-                  type="button"
-                  className="plus-button"
-                  onClick={() => openAddHoursModal(student)}
-                  aria-label={`Add hours to ${student.id}`}
-                >
-                  +
-                </button>
-              </li>
+              <article className="student-card-item" key={student.id}>
+                <div className="student-card-head">
+                  <div>
+                    <h3>{student.name}</h3>
+                    <p className="points-text">Total Points: {student.points}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="plus-button"
+                    onClick={() => openAddHoursModal(student)}
+                    aria-label={`Add hours to ${student.id}`}
+                  >
+                    +
+                  </button>
+                </div>
+
+                <div className="progress-wrap">
+                  <p>Progress:</p>
+                  <div className="progress-track" role="presentation">
+                    <div
+                      className="progress-bar"
+                      style={{ width: `${getProgressPercent(student.points)}%` }}
+                    />
+                  </div>
+                </div>
+              </article>
             ))}
-          </ul>
+            {students.length === 0 && <p>No student records yet.</p>}
+          </div>
         </section>
 
         {isAddModalOpen && selectedStudent && (
@@ -244,7 +259,7 @@ function App() {
                 x
               </button>
 
-              <h2>{selectedStudent.id}</h2>
+              <h2>{selectedStudent.name}</h2>
               <p className="subheading">Current points: {selectedStudent.points}</p>
 
               <form className="modal-form" onSubmit={handleAddHoursSubmit}>
