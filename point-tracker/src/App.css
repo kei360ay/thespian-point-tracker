@@ -110,6 +110,62 @@ h2 {
   cursor: pointer;
 }
 
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 32, 59, 0.45);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.add-hours-modal {
+  width: min(420px, 100%);
+  background: #fffdf8;
+  border: 2px solid #11203b;
+  border-radius: 14px;
+  box-shadow: 8px 8px 0 #11203b;
+  padding: 18px;
+  position: relative;
+  text-align: left;
+}
+
+.close-circle-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #9c1a1a;
+  background: #ffffff;
+  color: #9c1a1a;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.modal-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.modal-form input,
+.modal-form button {
+  border-radius: 8px;
+  border: 1px solid #4b5d7d;
+  padding: 10px;
+  font-size: 0.95rem;
+}
+
+.modal-form button {
+  background: #1d4f91;
+  color: #ffffff;
+  border-color: #1d4f91;
+  cursor: pointer;
+}
+
 .add-hours-form {
   grid-template-columns: 1fr auto auto;
 }
@@ -122,6 +178,10 @@ h2 {
 
 @media (max-width: 720px) {
   .tracker-form {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-form {
     grid-template-columns: 1fr;
   }
 
