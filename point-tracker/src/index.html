@@ -3,234 +3,324 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>International Thespian Society - Dashboard</title>
+  <title>International Thespian Society</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"/>
   <style>
-    .progress-bar {
-      height: 12px;
-      background: #1ad55f;
-      border-radius: 9999px;
-      transition: width 0.4s ease;
-    }
+    body { font-family: system-ui, -apple-system, sans-serif; }
+    .progress-bar { transition: width 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1); }
   </style>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-[#f8f5f0] text-gray-800">
 
   <!-- Header -->
   <header class="bg-white border-b border-gray-200">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-8 py-5 flex items-center justify-between">
       <div class="flex items-center gap-3">
-        <img src="https://via.placeholder.com/50x50/1e3a8a/ffffff?text=ITS" 
-             alt="Logo" class="w-12 h-12"/>
+        <div class="bg-[#4a2c1f] text-white w-10 h-10 flex items-center justify-center rounded-xl font-bold text-xl">ITS</div>
         <div>
-          <span class="text-[#1e3a8a] font-bold text-xl tracking-tight">INTERNATIONAL</span><br>
-          <span class="text-yellow-500 font-bold text-xl tracking-tight -mt-2 block">THESPIAN SOCIETY</span>
+          <span class="font-semibold text-xl tracking-tight">INTERNATIONAL</span><br>
+          <span class="text-[#4a2c1f] font-bold text-lg -mt-1 block">THESPIAN SOCIETY</span>
         </div>
       </div>
-
-      <nav class="flex items-center gap-8 text-sm font-medium">
-        <a href="#" class="text-gray-700 hover:text-black">HOMEPAGE</a>
-        <a href="#" class="text-gray-700 hover:text-black">STUDENT LIST</a>
-        <a href="#" class="text-gray-700 hover:text-black">ADD POINTS</a>
-        <a href="#" class="text-gray-700 hover:text-black">LOGOUT</a>
+      <nav class="flex gap-8 text-sm font-medium">
+        <a href="#" onclick="showDashboard()" class="hover:text-[#4a2c1f]">HOMEPAGE</a>
+        <a href="#" onclick="showStudentList()" class="hover:text-[#4a2c1f]">STUDENT LIST</a>
       </nav>
-
-      <div class="flex items-center gap-6">
-        <i class="fa-solid fa-globe text-2xl text-gray-600"></i>
-        <i class="fa-solid fa-bell text-2xl text-gray-600"></i>
-      </div>
     </div>
   </header>
 
-  <div class="max-w-7xl mx-auto px-6 py-8">
+  <div class="max-w-7xl mx-auto px-8 py-10">
 
-    <!-- Welcome -->
-    <div class="flex items-center justify-between mb-8">
-      <h1 class="text-2xl font-semibold">
-        Welcome Back, <span class="font-bold">Ms Studniski (Troupe Director)</span> 
-        <span class="text-3xl">👤</span>
-      </h1>
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboard-view">
+      <h1 class="text-4xl font-semibold mb-2">Welcome Back, Troupe Director <span class="text-3xl">👋</span></h1>
+      <p class="text-gray-600 mb-10">Here's how your students are progressing this semester.</p>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
+          <p class="text-5xl font-bold text-[#4a2c1f]">4</p>
+          <p class="text-gray-500 mt-2">Total Students</p>
+        </div>
+        <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
+          <p class="text-5xl font-bold text-[#4a2c1f]">1</p>
+          <p class="text-gray-500 mt-2">Inducted Thespians</p>
+        </div>
+        <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
+          <p class="text-5xl font-bold text-[#4a2c1f]">9.8</p>
+          <p class="text-gray-500 mt-2">Avg Points</p>
+        </div>
+      </div>
+
+      <!-- Students Section -->
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-2xl font-semibold">Students / Progress:</h2>
+        <div class="flex gap-3">
+          <input id="name-filter" type="text" placeholder="Filter by name..." 
+                 onkeyup="filterStudents()" 
+                 class="px-5 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:border-[#4a2c1f] w-80"/>
+          <button onclick="addNewStudent()" 
+                  class="bg-[#4a2c1f] text-white px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-[#3a2218]">
+            <i class="fas fa-plus"></i> Add Student
+          </button>
+        </div>
+      </div>
+
+      <div id="student-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Populated by JS -->
+      </div>
     </div>
 
-    <!-- Students / Progress Section -->
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-semibold">Students / Progress:</h2>
-      <button class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black">
-        Filter
-        <i class="fa-solid fa-sliders-h"></i>
+    <!-- STUDENT DETAIL VIEW -->
+    <div id="detail-view" class="hidden">
+      <button onclick="showDashboard()" class="flex items-center gap-2 text-gray-600 hover:text-black mb-6">
+        <i class="fas fa-arrow-left"></i> Back to Dashboard
       </button>
+      
+      <div class="flex justify-between items-start mb-8">
+        <div>
+          <h1 id="student-name" class="text-4xl font-semibold"></h1>
+          <p id="student-class" class="text-gray-600 text-xl">Class of 2026</p>
+        </div>
+        <button onclick="savePoints()" 
+                class="bg-[#4a2c1f] text-white px-8 py-3 rounded-2xl flex items-center gap-2 font-medium">
+          <i class="fas fa-save"></i> Save Points
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Categories -->
+        <div class="lg:col-span-2 space-y-4" id="categories-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Sidebar Rank -->
+        <div class="bg-white rounded-3xl p-8 h-fit border border-gray-100">
+          <h3 class="text-sm uppercase tracking-widest text-gray-500 mb-2">CURRENT RANK</h3>
+          <p id="current-rank" class="text-5xl font-bold text-[#4a2c1f]">Thespian</p>
+          <p id="total-points" class="text-6xl font-bold mt-4">18.0</p>
+          <p class="text-gray-600">total points</p>
+          
+          <div class="mt-10">
+            <div class="flex justify-between text-sm mb-2">
+              <span>10 pts</span>
+              <span>Next rank at 20 pts</span>
+            </div>
+            <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div class="h-full w-3/4 bg-[#4a2c1f] rounded-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Student Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-      <!-- Student Card -->
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Rishi Boyat</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">6.5</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[65%]"></div>
-          </div>
-        </div>
+    <!-- STUDENT LIST VIEW -->
+    <div id="list-view" class="hidden">
+      <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-semibold">Here is the List of Students:</h2>
+        <button onclick="addNewStudent()" 
+                class="bg-[#4a2c1f] text-white px-6 py-3 rounded-2xl flex items-center gap-2">
+          <i class="fas fa-plus"></i> ADD STUDENT
+        </button>
       </div>
-
-      <!-- Repeat for other students -->
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">John Doe</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">6</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[60%]"></div>
-          </div>
-        </div>
+      <div id="full-student-list" class="space-y-3">
+        <!-- Populated by JS -->
       </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Jamal Adams</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">5</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[50%]"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Peter Burwash</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">4.5</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[45%]"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Jamie Chen</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">4.5</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[45%]"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Charlie Kevin</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">4</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[40%]"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Bob Marley</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">2</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[20%]"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">William Parsley</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">2</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[20%]"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Jermaine Cole</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">1.5</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[15%]"></div>
-          </div>
-        </div>
-      </div>
-
     </div>
   </div>
 
+  <script>
+    // Sample Data
+    let students = [
+      { id: 1, name: "Emma Johnson", points: 18.0, year: 2026, progressColor: "#8b5cf6" },
+      { id: 2, name: "Sophia Chen", points: 9.0, year: 2027, progressColor: "#22c55e" },
+      { id: 3, name: "Marcus Lee", points: 8.0, year: 2026, progressColor: "#22c55e" },
+      { id: 4, name: "Jordan Williams", points: 4.0, year: 2028, progressColor: "#22c55e" }
+    ];
+
+    // Categories for detail view
+    const categories = [
+      { name: "Acting", icon: "🎭", desc: "Performance roles on stage", points: 8 },
+      { name: "Directing", icon: "🎬", desc: "Creative leadership of productions", points: 0 },
+      { name: "Production", icon: "🔧", desc: "Technical and backstage roles", points: 4 },
+      { name: "Business", icon: "📋", desc: "Management, publicity, and operations", points: 0 },
+      { name: "Writing", icon: "✍️", desc: "Original scripts and creative writing", points: 0 },
+      { name: "Officers & Service", icon: "🏆", desc: "Leadership positions within your troupe", points: 6 },
+      { name: "Miscellaneous & Classroom", icon: "⭐", desc: "Festivals, competitions, and educational activities", points: 0 }
+    ];
+
+    function renderDashboard() {
+      const grid = document.getElementById('student-grid');
+      grid.innerHTML = '';
+
+      students.forEach(student => {
+        const progress = Math.min((student.points / 20) * 100, 100);
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl p-6 card-hover cursor-pointer border border-gray-100";
+        card.innerHTML = `
+          <div class="flex justify-between">
+            <div>
+              <h3 class="font-semibold text-2xl">${student.name}</h3>
+              <p class="text-gray-500">Total Points: <span class="font-bold text-[#4a2c1f]">${student.points}</span></p>
+            </div>
+            <button onclick="event.stopImmediatePropagation(); addQuickPoint(${student.id});" 
+                    class="w-10 h-10 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-green-50">
+              <i class="fas fa-plus text-green-600"></i>
+            </button>
+          </div>
+          <div class="mt-8">
+            <p class="text-xs text-gray-500 mb-2">Progress</p>
+            <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div class="progress-bar h-full rounded-full" 
+                   style="width: ${progress}%; background-color: ${student.progressColor};"></div>
+            </div>
+          </div>
+        `;
+        card.onclick = () => showStudentDetail(student);
+        grid.appendChild(card);
+      });
+    }
+
+    function addQuickPoint(id) {
+      const student = students.find(s => s.id === id);
+      if (student) {
+        student.points = parseFloat((student.points + 0.5).toFixed(1));
+        renderDashboard();
+        event.stopImmediatePropagation();
+      }
+    }
+
+    function showStudentDetail(student) {
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('detail-view').classList.remove('hidden');
+      document.getElementById('list-view').classList.add('hidden');
+
+      document.getElementById('student-name').textContent = student.name;
+      document.getElementById('student-class').textContent = `Class of ${student.year}`;
+      document.getElementById('total-points').textContent = student.points.toFixed(1);
+
+      const container = document.getElementById('categories-list');
+      container.innerHTML = '';
+
+      categories.forEach(cat => {
+        const div = document.createElement('div');
+        div.className = "bg-white rounded-3xl p-6 flex items-center justify-between border border-gray-100";
+        div.innerHTML = `
+          <div class="flex items-center gap-4">
+            <span class="text-3xl">${cat.icon}</span>
+            <div>
+              <p class="font-semibold">${cat.name}</p>
+              <p class="text-sm text-gray-500">${cat.desc}</p>
+            </div>
+          </div>
+          <div class="text-right">
+            <span class="bg-[#4a2c1f] text-white text-sm px-4 py-1 rounded-2xl font-medium">+${cat.points} pts</span>
+          </div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function showDashboard() {
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      document.getElementById('detail-view').classList.add('hidden');
+      document.getElementById('list-view').classList.add('hidden');
+      renderDashboard();
+    }
+
+    function showStudentList() {
+      document.getElementById('dashboard-view').classList.add('hidden');
+      document.getElementById('detail-view').classList.add('hidden');
+      document.getElementById('list-view').classList.remove('hidden');
+
+      const container = document.getElementById('full-student-list');
+      container.innerHTML = '';
+
+      students.forEach(student => {
+        const row = document.createElement('div');
+        row.className = "bg-white rounded-3xl p-6 flex justify-between items-center border border-gray-100 cursor-pointer";
+        row.innerHTML = `
+          <div>
+            <p class="font-semibold text-xl">${student.name}</p>
+          </div>
+          <div class="text-right">
+            <p class="text-sm text-gray-500">ID: ${String(10000000 + Math.floor(Math.random()*9000000)).slice(0,8)}</p>
+            <p class="text-[#4a2c1f] font-medium">${student.points} pts</p>
+          </div>
+        `;
+        row.onclick = () => showStudentDetail(student);
+        container.appendChild(row);
+      });
+    }
+
+    function filterStudents() {
+      const term = document.getElementById('name-filter').value.toLowerCase();
+      const filtered = students.filter(s => s.name.toLowerCase().includes(term));
+      
+      const grid = document.getElementById('student-grid');
+      grid.innerHTML = '';
+      
+      if (filtered.length === 0) {
+        grid.innerHTML = `<p class="col-span-3 text-center py-12 text-gray-400">No students found.</p>`;
+        return;
+      }
+      
+      filtered.forEach(student => {
+        // Reuse same card logic as renderDashboard but simplified
+        const progress = Math.min((student.points / 20) * 100, 100);
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl p-6 card-hover cursor-pointer border border-gray-100";
+        card.innerHTML = `
+          <div class="flex justify-between">
+            <div>
+              <h3 class="font-semibold text-2xl">${student.name}</h3>
+              <p class="text-gray-500">Total Points: <span class="font-bold text-[#4a2c1f]">${student.points}</span></p>
+            </div>
+            <button onclick="event.stopImmediatePropagation(); addQuickPoint(${student.id});" 
+                    class="w-10 h-10 rounded-2xl border border-gray-200 flex items-center justify-center hover:bg-green-50">
+              <i class="fas fa-plus text-green-600"></i>
+            </button>
+          </div>
+          <div class="mt-8">
+            <p class="text-xs text-gray-500 mb-2">Progress</p>
+            <div class="h-3 bg-gray-100 rounded-full overflow-hidden">
+              <div class="progress-bar h-full rounded-full" 
+                   style="width: ${progress}%; background-color: ${student.progressColor};"></div>
+            </div>
+          </div>
+        `;
+        card.onclick = () => showStudentDetail(student);
+        grid.appendChild(card);
+      });
+    }
+
+    function addNewStudent() {
+      const name = prompt("Enter new student's full name:");
+      if (!name) return;
+      
+      const newStudent = {
+        id: students.length + 1,
+        name: name,
+        points: 0.0,
+        year: 2027,
+        progressColor: "#22c55e"
+      };
+      
+      students.push(newStudent);
+      renderDashboard();
+      alert(`${name} has been added!`);
+    }
+
+    function savePoints() {
+      alert("Points saved successfully! 🎉");
+    }
+
+    // Initialize
+    window.onload = () => {
+      renderDashboard();
+    };
+  </script>
 </body>
 </html>
