@@ -47,61 +47,8 @@
       </button>
     </div>
 
-    <!-- Student Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-      <!-- Student Card -->
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Alex Johnson</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
-          <p class="text-5xl font-bold text-[#4a2c1f]">1</p>
-          <p class="text-gray-500 mt-2">Inducted Thespians</p>
-        </div>
-        <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
-          <p class="text-5xl font-bold text-[#4a2c1f]">9.8</p>
-          <p class="text-gray-500 mt-2">Avg Points</p>
-        </div>
-      </div>
-
-      <!-- Students Section -->
-      <div class="flex justify-between items-center mb-6">
-        <h2 class="text-2xl font-semibold">Students / Progress:</h2>
-        <div class="flex gap-3">
-          <input id="name-filter" type="text" placeholder="Filter by name..." 
-                 onkeyup="filterStudents()" 
-                 class="px-5 py-3 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:border-[#4a2c1f] w-80"/>
-          <button onclick="addNewStudent()" 
-                  class="bg-[#4a2c1f] text-white px-6 py-3 rounded-2xl flex items-center gap-2 hover:bg-[#3a2218]">
-            <i class="fas fa-plus"></i> Add Student
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Noah Lee</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
-          </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
-        </div>
-        <div class="mt-6">
-          <p class="text-xs text-gray-500 mb-2">Progress:</p>
-          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
-            <div class="progress-bar w-[50%]"></div>
-          </div>
-        </div>
-      </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="student-grid">
+      <!-- Student cards will be dynamically inserted here by renderDashboard() -->
     </div>
 
     <!-- STUDENT DETAIL VIEW -->
@@ -121,15 +68,13 @@
         </button>
       </div>
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Liam Walker</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
+      <div class="grid grid-cols-3 gap-8">
+        <!-- Main Content -->
+        <div class="col-span-2">
+          <h2 class="text-2xl font-semibold mb-6">Point Categories</h2>
+          <div id="categories-container" class="space-y-4">
+            <!-- Categories will be dynamically inserted here -->
           </div>
-          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
-            <i class="fa-solid fa-plus text-lg"></i>
-          </button>
         </div>
 
         <!-- Sidebar Rank -->
@@ -141,11 +86,11 @@
           
           <div class="mt-10">
             <div class="flex justify-between text-sm mb-2">
-              <span>10 pts</span>
-              <span>Next rank at 20 pts</span>
+              <span id="points-lower-bound">10 pts</span>
+              <span id="points-upper-bound">Next rank at 20 pts</span>
             </div>
             <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-              <div class="h-full w-3/4 bg-[#4a2c1f] rounded-full"></div>
+              <div id="rank-progress-bar" class="h-full bg-[#4a2c1f] rounded-full"></div>
             </div>
           </div>
         </div>
@@ -218,19 +163,58 @@
         grid.appendChild(card);
       });
     }
+    
+    function showStudentDetail(student) {
+        document.getElementById('dashboard-view').classList.add('hidden');
+        document.getElementById('detail-view').classList.remove('hidden');
+        document.getElementById('list-view').classList.add('hidden');
 
-      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
-        <div class="flex justify-between items-start">
-          <div>
-            <h3 class="font-semibold text-lg">Maria Garcia</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
-          </div>
-          <div class="text-right">
-            <span class="bg-[#4a2c1f] text-white text-sm px-4 py-1 rounded-2xl font-medium">+${cat.points} pts</span>
-          </div>
-        `;
-        container.appendChild(div);
-      });
+        document.getElementById('student-name').innerText = student.name;
+        document.getElementById('student-class').innerText = `Class of ${student.year}`;
+        
+        const rank = getRank(student.points);
+        document.getElementById('current-rank').innerText = rank.name;
+        document.getElementById('total-points').innerText = student.points.toFixed(1);
+        
+        const rankProgress = ((student.points - rank.min) / (rank.next - rank.min)) * 100;
+        document.getElementById('rank-progress-bar').style.width = `${rankProgress}%`;
+        document.getElementById('points-lower-bound').innerText = `${rank.min} pts`;
+        document.getElementById('points-upper-bound').innerText = `Next rank at ${rank.next} pts`;
+
+        const container = document.getElementById('categories-container');
+        container.innerHTML = '';
+        categories.forEach(cat => {
+            const div = document.createElement('div');
+            div.className = "bg-white rounded-2xl p-5 flex justify-between items-center border border-gray-100";
+            div.innerHTML = `
+                <div class="flex items-center gap-4">
+                    <span class="text-3xl">${cat.icon}</span>
+                    <div>
+                        <h4 class="font-semibold">${cat.name}</h4>
+                        <p class="text-sm text-gray-500">${cat.desc}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                  <span class="bg-[#4a2c1f] text-white text-sm px-4 py-1 rounded-2xl font-medium">+${cat.points} pts</span>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function getRank(points) {
+        if (points >= 60) return { name: "Honor Thespian", min: 60, next: 120 };
+        if (points >= 20) return { name: "National Thespian", min: 20, next: 60 };
+        if (points >= 10) return { name: "Thespian", min: 10, next: 20 };
+        return { name: "Apprentice", min: 0, next: 10 };
+    }
+
+    function addQuickPoint(studentId) {
+        const student = students.find(s => s.id === studentId);
+        if (student) {
+            student.points += 1.0;
+            renderDashboard();
+        }
     }
 
     function showDashboard() {
@@ -250,14 +234,19 @@
 
       students.forEach(student => {
         const row = document.createElement('div');
-        row.className = "bg-white rounded-3xl p-6 flex justify-between items-center border border-gray-100 cursor-pointer";
+        row.className = "bg-white rounded-3xl p-6 flex justify-between items-center border border-gray-100 cursor-pointer hover:bg-gray-50";
         row.innerHTML = `
-          <div>
-            <h3 class="font-semibold text-lg">Noah Lee</h3>
-            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
+          <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-full flex items-center justify-center" style="background-color: ${student.progressColor}20;">
+                <span class="font-bold text-lg" style="color: ${student.progressColor};">${student.name.charAt(0)}</span>
+            </div>
+            <div>
+                <h3 class="font-semibold text-lg">${student.name}</h3>
+                <p class="text-sm text-gray-600">Class of ${student.year}</p>
+            </div>
           </div>
           <div class="text-right">
-            <p class="text-sm text-gray-500">ID: ${String(10000000 + Math.floor(Math.random()*9000000)).slice(0,8)}</p>
+            <p class="text-sm text-gray-500">ID: ${String(10000000 + student.id).slice(0,8)}</p>
             <p class="text-[#4a2c1f] font-medium">${student.points} pts</p>
           </div>
         `;
@@ -279,7 +268,6 @@
       }
       
       filtered.forEach(student => {
-        // Reuse same card logic as renderDashboard but simplified
         const progress = Math.min((student.points / 20) * 100, 100);
         const card = document.createElement('div');
         card.className = "bg-white rounded-3xl p-6 card-hover cursor-pointer border border-gray-100";
@@ -320,7 +308,7 @@
       };
       
       students.push(newStudent);
-      renderDashboard();
+      showStudentList();
       alert(`${name} has been added!`);
     }
 
@@ -330,7 +318,7 @@
 
     // Initialize
     window.onload = () => {
-      renderDashboard();
+      showDashboard();
     };
   </script>
 </body>
