@@ -5,21 +5,24 @@ import { Navigate, Route, Routes } from "react-router-dom";
 import { db } from "./firebase";
 
 const SEED_STUDENTS = [
-  { id: "alex-johnson", name: "Alex Johnson" },
-  { id: "maria-garcia", name: "Maria Garcia" },
-  { id: "noah-lee", name: "Noah Lee" },
-  { id: "zoe-patel", name: "Zoe Patel" },
+  { id: "alex-johnson", name: "Alex Johnson", studentId: "123456" },
+  { id: "maria-garcia", name: "Maria Garcia", studentId: "234567" },
+  { id: "noah-lee", name: "Noah Lee", studentId: "345678" },
+  { id: "zoe-patel", name: "Zoe Patel", studentId: "456789" },
   { id: "liam-walker", name: "Liam Walker" },
 ];
 
 const SEEDED_NAME_BY_ID = SEED_STUDENTS.reduce((accumulator, student) => {
-  accumulator[student.id] = student.name;
+  accumulator[student.id] = {
+    name: student.name,
+    studentId: student.studentId,
+  };
   return accumulator;
 }, {});
 
+const getDisplayName = (id) => SEEDED_NAME_BY_ID[id]?.name ?? id;
+const getStudentId = (id) => SEEDED_NAME_BY_ID[id]?.studentId ?? "000000";
 const getPointsFromHours = (hours) => Math.floor(Number(hours) / 10);
-
-const getDisplayName = (id) => SEEDED_NAME_BY_ID[id] ?? id;
 const getProgressPercent = (points) => Math.max(0, Math.min(100, Number(points) * 10));
 
 
@@ -44,6 +47,7 @@ function App() {
       return {
         id: studentDoc.id,
         name: getDisplayName(studentDoc.id),
+        studentId: getStudentId(studentDoc.id),
         hoursworked: hours,
         points: Number.isNaN(storedPoints)
           ? getPointsFromHours(hours)
@@ -108,7 +112,11 @@ function App() {
         SEED_STUDENTS.map((student) =>
           setDoc(
             doc(db, "students", student.id),
-            { hoursworked: 0, points: 0 },
+            {
+              hoursworked: 0,
+              points: 0,
+              studentId: student.studentId ?? null,
+            },
             { merge: true }
           )
         )
@@ -220,6 +228,7 @@ function App() {
                 <div className="student-card-head">
                   <div>
                     <h3>{student.name}</h3>
+                    <p className="student-id">ID: {student.studentId}</p>
                     <p className="points-text">Total Points: {student.points}</p>
                   </div>
                   <button

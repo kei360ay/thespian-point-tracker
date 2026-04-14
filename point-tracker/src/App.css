@@ -118,6 +118,12 @@ h2 {
   color: #0a1020;
 }
 
+.student-id {
+  font-size: 0.8rem;
+  color: #666;
+  margin: -8px 0 8px;
+}
+
 .points-text {
   margin: 8px 0 0;
   font-size: 1.05rem;
