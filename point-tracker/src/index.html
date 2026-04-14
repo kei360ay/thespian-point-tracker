@@ -38,11 +38,28 @@
       <h1 class="text-4xl font-semibold mb-2">Welcome Back, Troupe Director <span class="text-3xl">👋</span></h1>
       <p class="text-gray-600 mb-10">Here's how your students are progressing this semester.</p>
 
-      <!-- Stats -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
-          <p class="text-5xl font-bold text-[#4a2c1f]">4</p>
-          <p class="text-gray-500 mt-2">Total Students</p>
+    <!-- Students / Progress Section -->
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-semibold">Students / Progress:</h2>
+      <button class="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-black">
+        Filter
+        <i class="fa-solid fa-sliders-h"></i>
+      </button>
+    </div>
+
+    <!-- Student Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+      <!-- Student Card -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Alex Johnson</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
         </div>
         <div class="bg-white rounded-3xl p-8 text-center border border-gray-100">
           <p class="text-5xl font-bold text-[#4a2c1f]">1</p>
@@ -68,8 +85,22 @@
         </div>
       </div>
 
-      <div id="student-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Populated by JS -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Noah Lee</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
+        </div>
+        <div class="mt-6">
+          <p class="text-xs text-gray-500 mb-2">Progress:</p>
+          <div class="bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div class="progress-bar w-[50%]"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -90,10 +121,15 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Categories -->
-        <div class="lg:col-span-2 space-y-4" id="categories-list">
-          <!-- Populated by JS -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Liam Walker</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
+          </div>
+          <button class="w-8 h-8 flex items-center justify-center border border-gray-300 rounded-xl hover:bg-gray-100 transition">
+            <i class="fa-solid fa-plus text-lg"></i>
+          </button>
         </div>
 
         <!-- Sidebar Rank -->
@@ -183,37 +219,11 @@
       });
     }
 
-    function addQuickPoint(id) {
-      const student = students.find(s => s.id === id);
-      if (student) {
-        student.points = parseFloat((student.points + 0.5).toFixed(1));
-        renderDashboard();
-        event.stopImmediatePropagation();
-      }
-    }
-
-    function showStudentDetail(student) {
-      document.getElementById('dashboard-view').classList.add('hidden');
-      document.getElementById('detail-view').classList.remove('hidden');
-      document.getElementById('list-view').classList.add('hidden');
-
-      document.getElementById('student-name').textContent = student.name;
-      document.getElementById('student-class').textContent = `Class of ${student.year}`;
-      document.getElementById('total-points').textContent = student.points.toFixed(1);
-
-      const container = document.getElementById('categories-list');
-      container.innerHTML = '';
-
-      categories.forEach(cat => {
-        const div = document.createElement('div');
-        div.className = "bg-white rounded-3xl p-6 flex items-center justify-between border border-gray-100";
-        div.innerHTML = `
-          <div class="flex items-center gap-4">
-            <span class="text-3xl">${cat.icon}</span>
-            <div>
-              <p class="font-semibold">${cat.name}</p>
-              <p class="text-sm text-gray-500">${cat.desc}</p>
-            </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-md transition-shadow">
+        <div class="flex justify-between items-start">
+          <div>
+            <h3 class="font-semibold text-lg">Maria Garcia</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
           </div>
           <div class="text-right">
             <span class="bg-[#4a2c1f] text-white text-sm px-4 py-1 rounded-2xl font-medium">+${cat.points} pts</span>
@@ -243,7 +253,8 @@
         row.className = "bg-white rounded-3xl p-6 flex justify-between items-center border border-gray-100 cursor-pointer";
         row.innerHTML = `
           <div>
-            <p class="font-semibold text-xl">${student.name}</p>
+            <h3 class="font-semibold text-lg">Noah Lee</h3>
+            <p class="text-sm text-gray-600 mt-1">Total Points: <span class="font-medium">0</span></p>
           </div>
           <div class="text-right">
             <p class="text-sm text-gray-500">ID: ${String(10000000 + Math.floor(Math.random()*9000000)).slice(0,8)}</p>
