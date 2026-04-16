@@ -2,7 +2,9 @@ import "./App.css";
 import { useState, useEffect, useCallback } from "react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
+import { onAuthStateChanged } from 'firebase/auth';
+import AuthButton from './components/AuthButton';
 
 const SEED_STUDENTS = [
   { id: "alex-johnson", name: "Alex Johnson", studentId: "123456" },
@@ -27,6 +29,7 @@ const getProgressPercent = (points) => Math.max(0, Math.min(100, Number(points) 
 
 
 function App() {
+  const [user, setUser] = useState(null);
   const [students, setStudents] = useState([]);
   const [studentId, setStudentId] = useState("");
   const [hoursWorked, setHoursWorked] = useState("");
@@ -35,6 +38,13 @@ function App() {
   const [hoursToAdd, setHoursToAdd] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const fetchStudents = useCallback(async () => {
     const querySnapshot = await getDocs(collection(db, "students"));
@@ -61,10 +71,12 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetchStudents().catch(() => {
-      setError("Could not load students from Firestore.");
-    });
-  }, [fetchStudents]);
+    if (user) {
+      fetchStudents().catch(() => {
+        setError("Could not load students from Firestore.");
+      });
+    }
+  }, [user, fetchStudents]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -292,13 +304,22 @@ function App() {
   };
 
   return (
-    <div className="App tracker-page">
-      <main className="tracker-card">
-        <Routes>
-          <Route path="/" element={<StudentListPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
+    <div className="App">
+      <AuthButton user={user} />
+      {user ? (
+        <div className="App tracker-page">
+          <main className="tracker-card">
+            <Routes>
+              <Route path="/" element={<StudentListPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </main>
+        </div>
+      ) : (
+        <p style={{ textAlign: 'center', marginTop: '2rem' }}>
+          Sign in to view student points.
+        </p>
+      )}
     </div>
   );
 }
