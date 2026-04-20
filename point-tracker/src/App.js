@@ -4,7 +4,7 @@ import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { db, auth } from "./firebase";
 import { onAuthStateChanged } from 'firebase/auth';
-import AuthButton from './components/AuthButton';
+import AuthButton from './components/Auth-Button';
 
 const SEED_STUDENTS = [
   { id: "alex-johnson", name: "Alex Johnson", studentId: "123456" },
