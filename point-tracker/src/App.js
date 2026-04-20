@@ -1,5 +1,5 @@
 import "./App.css";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { Navigate, Route, Routes } from "react-router-dom";
 import { db, auth } from "./firebase";
@@ -78,7 +78,7 @@ function App() {
     }
   }, [user, fetchStudents]);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
     setError("");
 
@@ -113,9 +113,9 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [studentId, hoursWorked, fetchStudents]);
 
-  const handleSeedStudents = async () => {
+  const handleSeedStudents = useCallback(async () => {
     setError("");
     setIsSaving(true);
 
@@ -140,23 +140,23 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [fetchStudents]);
 
-  const openAddHoursModal = (student) => {
+  const openAddHoursModal = useCallback((student) => {
     setError("");
     setSelectedStudent(student);
     setHoursToAdd("");
     setIsAddModalOpen(true);
-  };
+  }, []);
 
-  const closeAddHoursModal = () => {
+  const closeAddHoursModal = useCallback(() => {
     setError("");
     setSelectedStudent(null);
     setHoursToAdd("");
     setIsAddModalOpen(false);
-  };
+  }, []);
 
-  const handleAddHoursSubmit = async (event) => {
+  const handleAddHoursSubmit = useCallback(async (event) => {
     event.preventDefault();
     setError("");
 
@@ -191,9 +191,26 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [selectedStudent, hoursToAdd, fetchStudents, closeAddHoursModal]);
 
-  const StudentListPage = () => {
+  const StudentListPage = ({
+    students,
+    studentId,
+    setStudentId,
+    hoursWorked,
+    setHoursWorked,
+    handleSubmit,
+    isSaving,
+    handleSeedStudents,
+    error,
+    openAddHoursModal,
+    isAddModalOpen,
+    selectedStudent,
+    closeAddHoursModal,
+    handleAddHoursSubmit,
+    hoursToAdd,
+    setHoursToAdd,
+  }) => {
     return (
       <>
         <h1>Thespian Point Tracker</h1>
@@ -303,6 +320,44 @@ function App() {
     );
   };
 
+  const studentListPage = useMemo(
+    () => (
+      <StudentListPage
+        students={students}
+        studentId={studentId}
+        setStudentId={setStudentId}
+        hoursWorked={hoursWorked}
+        setHoursWorked={setHoursWorked}
+        handleSubmit={handleSubmit}
+        isSaving={isSaving}
+        handleSeedStudents={handleSeedStudents}
+        error={error}
+        openAddHoursModal={openAddHoursModal}
+        isAddModalOpen={isAddModalOpen}
+        selectedStudent={selectedStudent}
+        closeAddHoursModal={closeAddHoursModal}
+        handleAddHoursSubmit={handleAddHoursSubmit}
+        hoursToAdd={hoursToAdd}
+        setHoursToAdd={setHoursToAdd}
+      />
+    ),
+    [
+      students,
+      studentId,
+      hoursWorked,
+      handleSubmit,
+      isSaving,
+      handleSeedStudents,
+      error,
+      openAddHoursModal,
+      isAddModalOpen,
+      selectedStudent,
+      closeAddHoursModal,
+      handleAddHoursSubmit,
+      hoursToAdd,
+    ]
+  );
+
   return (
     <div className="App">
       <AuthButton user={user} />
@@ -310,7 +365,7 @@ function App() {
         <div className="App tracker-page">
           <main className="tracker-card">
             <Routes>
-              <Route path="/" element={<StudentListPage />} />
+              <Route path="/" element={studentListPage} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </main>
