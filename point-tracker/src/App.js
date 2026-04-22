@@ -1,40 +1,33 @@
 import "./App.css";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { collection, doc, getDocs, setDoc } from "firebase/firestore";
 import { Navigate, Route, Routes } from "react-router-dom";
-import { db } from "./firebase";
+import { db, auth } from "./firebase";
+import { onAuthStateChanged } from 'firebase/auth';
+import AuthButton from './components/Auth-Button';
 
-const SEED_STUDENTS = [
-  { id: "alex-johnson", name: "Alex Johnson", studentId: "123456" },
-  { id: "maria-garcia", name: "Maria Garcia", studentId: "234567" },
-  { id: "noah-lee", name: "Noah Lee", studentId: "345678" },
-  { id: "zoe-patel", name: "Zoe Patel", studentId: "456789" },
-  { id: "liam-walker", name: "Liam Walker" },
-];
-
-const SEEDED_NAME_BY_ID = SEED_STUDENTS.reduce((accumulator, student) => {
-  accumulator[student.id] = {
-    name: student.name,
-    studentId: student.studentId,
-  };
-  return accumulator;
-}, {});
-
-const getDisplayName = (id) => SEEDED_NAME_BY_ID[id]?.name ?? id;
-const getStudentId = (id) => SEEDED_NAME_BY_ID[id]?.studentId ?? "000000";
 const getPointsFromHours = (hours) => Math.floor(Number(hours) / 10);
 const getProgressPercent = (points) => Math.max(0, Math.min(100, Number(points) * 10));
 
 
 function App() {
+  const [user, setUser] = useState(null);
   const [students, setStudents] = useState([]);
-  const [studentId, setStudentId] = useState("");
+  const [newStudentName, setNewStudentName] = useState("");
+  const [newStudentId, setNewStudentId] = useState("");
   const [hoursWorked, setHoursWorked] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [hoursToAdd, setHoursToAdd] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const fetchStudents = useCallback(async () => {
     const querySnapshot = await getDocs(collection(db, "students"));
@@ -46,8 +39,8 @@ function App() {
 
       return {
         id: studentDoc.id,
-        name: getDisplayName(studentDoc.id),
-        studentId: getStudentId(studentDoc.id),
+        name: data.name,
+        studentId: data.studentId,
         hoursworked: hours,
         points: Number.isNaN(storedPoints)
           ? getPointsFromHours(hours)
@@ -61,17 +54,25 @@ function App() {
   }, []);
 
   useEffect(() => {
-    fetchStudents().catch(() => {
-      setError("Could not load students from Firestore.");
-    });
-  }, [fetchStudents]);
+    if (user) {
+      fetchStudents().catch(() => {
+        setError("Could not load students from Firestore.");
+      });
+    }
+  }, [user, fetchStudents]);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = useCallback(async (event) => {
     event.preventDefault();
     setError("");
 
-    const trimmedStudentId = studentId.trim();
+    const trimmedStudentName = newStudentName.trim();
+    const trimmedStudentId = newStudentId.trim();
     const parsedHours = Number(hoursWorked);
+
+    if (!trimmedStudentName) {
+      setError("Please enter a student name.");
+      return;
+    }
 
     if (!trimmedStudentId) {
       setError("Please enter a student ID.");
@@ -87,13 +88,16 @@ function App() {
 
     try {
       const points = getPointsFromHours(parsedHours);
+      const studentDocId = trimmedStudentName.toLowerCase().replace(/\s+/g, '-');
 
       await setDoc(
-        doc(db, "students", trimmedStudentId),
-        { hoursworked: parsedHours, points },
+        doc(db, "students", studentDocId),
+        { name: trimmedStudentName, studentId: trimmedStudentId, hoursworked: parsedHours, points },
         { merge: true }
       );
 
+      setNewStudentName("");
+      setNewStudentId("");
       setHoursWorked("");
       await fetchStudents();
     } catch {
@@ -101,50 +105,23 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [newStudentName, newStudentId, hoursWorked, fetchStudents]);
 
-  const handleSeedStudents = async () => {
-    setError("");
-    setIsSaving(true);
-
-    try {
-      await Promise.all(
-        SEED_STUDENTS.map((student) =>
-          setDoc(
-            doc(db, "students", student.id),
-            {
-              hoursworked: 0,
-              points: 0,
-              studentId: student.studentId ?? null,
-            },
-            { merge: true }
-          )
-        )
-      );
-
-      await fetchStudents();
-    } catch {
-      setError("Could not create example students. Check your Firestore rules/config.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const openAddHoursModal = (student) => {
+  const openAddHoursModal = useCallback((student) => {
     setError("");
     setSelectedStudent(student);
     setHoursToAdd("");
     setIsAddModalOpen(true);
-  };
+  }, []);
 
-  const closeAddHoursModal = () => {
+  const closeAddHoursModal = useCallback(() => {
     setError("");
     setSelectedStudent(null);
     setHoursToAdd("");
     setIsAddModalOpen(false);
-  };
+  }, []);
 
-  const handleAddHoursSubmit = async (event) => {
+  const handleAddHoursSubmit = useCallback(async (event) => {
     event.preventDefault();
     setError("");
 
@@ -179,126 +156,169 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [selectedStudent, hoursToAdd, fetchStudents, closeAddHoursModal]);
 
-  const StudentListPage = () => {
-    return (
-      <>
+  const StudentListPage = ({
+    students,
+    newStudentName,
+    setNewStudentName,
+    newStudentId,
+    setNewStudentId,
+    hoursWorked,
+    setHoursWorked,
+    handleSubmit,
+    openAddHoursModal,
+    isSaving,
+    error,
+  }) => (
+    <div className="App">
+      <header className="App-header">
         <h1>Thespian Point Tracker</h1>
-        <p className="subheading">Firestore path: students/{'{studentId}'}.hoursworked + .points</p>
-
-        <form className="tracker-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Student ID"
-            value={studentId}
-            onChange={(event) => setStudentId(event.target.value)}
-          />
-          <input
-            type="number"
-            min="0"
-            step="0.5"
-            placeholder="Hours worked"
-            value={hoursWorked}
-            onChange={(event) => setHoursWorked(event.target.value)}
-          />
+        <AuthButton user={user} />
+      </header>
+      <main>
+        <form onSubmit={handleSubmit}>
+          <label>
+            New Student Name:
+            <input
+              type="text"
+              value={newStudentName}
+              onChange={(e) => setNewStudentName(e.target.value)}
+            />
+          </label>
+          <label>
+            New Student ID:
+            <input
+              type="text"
+              value={newStudentId}
+              onChange={(e) => setNewStudentId(e.target.value)}
+            />
+          </label>
+          <label>
+            Hours Worked:
+            <input
+              type="number"
+              value={hoursWorked}
+              onChange={(e) => setHoursWorked(e.target.value)}
+            />
+          </label>
           <button type="submit" disabled={isSaving}>
-            {isSaving ? "Saving..." : "Save Hours"}
+            {isSaving ? "Saving..." : "Add Student"}
           </button>
         </form>
-
-        <button
-          type="button"
-          className="seed-button"
-          onClick={handleSeedStudents}
-          disabled={isSaving}
-        >
-          {isSaving ? "Working..." : "Create Example Students"}
-        </button>
-
-        {error && <p className="error-text">{error}</p>}
-
-        <section>
-          <div className="section-heading-row">
-            <h2>Students / Progress</h2>
-          </div>
-          <div className="student-grid">
+        {error && <p className="error">{error}</p>}
+        <table>
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Student ID</th>
+              <th>Hours Worked</th>
+              <th>Points</th>
+              <th>Progress to Next Point</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
             {students.map((student) => (
-              <article className="student-card-item" key={student.id}>
-                <div className="student-card-head">
-                  <div>
-                    <h3>{student.name}</h3>
-                    <p className="student-id">ID: {student.studentId}</p>
-                    <p className="points-text">Total Points: {student.points}</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="plus-button"
-                    onClick={() => openAddHoursModal(student)}
-                    aria-label={`Add hours to ${student.id}`}
-                  >
-                    +
+              <tr key={student.id}>
+                <td>{student.name}</td>
+                <td>{student.studentId}</td>
+                <td>{student.hoursworked}</td>
+                <td>{student.points}</td>
+                <td>
+                  <progress
+                    value={getProgressPercent(student.points)}
+                    max="100"
+                  ></progress>
+                </td>
+                <td>
+                  <button onClick={() => openAddHoursModal(student)}>
+                    Add Hours
                   </button>
-                </div>
-
-                <div className="progress-wrap">
-                  <p>Progress:</p>
-                  <div className="progress-track" role="presentation">
-                    <div
-                      className="progress-bar"
-                      style={{ width: `${getProgressPercent(student.points)}%` }}
-                    />
-                  </div>
-                </div>
-              </article>
+                </td>
+              </tr>
             ))}
-            {students.length === 0 && <p>No student records yet.</p>}
-          </div>
-        </section>
-
-        {isAddModalOpen && selectedStudent && (
-          <div className="modal-overlay" role="presentation">
-            <section className="add-hours-modal" role="dialog" aria-modal="true" aria-label="Add hours modal">
-              <button
-                type="button"
-                className="close-circle-button"
-                onClick={closeAddHoursModal}
-                aria-label="Close add hours"
-              >
-                x
-              </button>
-
-              <h2>{selectedStudent.name}</h2>
-              <p className="subheading">Current points: {selectedStudent.points}</p>
-
-              <form className="modal-form" onSubmit={handleAddHoursSubmit}>
+          </tbody>
+        </table>
+      </main>
+      {isAddModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h2>Add Hours for {selectedStudent?.name}</h2>
+            <form onSubmit={handleAddHoursSubmit}>
+              <label>
+                Hours to Add:
                 <input
                   type="number"
-                  min="0.5"
-                  step="0.5"
-                  placeholder="Hours to add"
                   value={hoursToAdd}
-                  onChange={(event) => setHoursToAdd(event.target.value)}
+                  onChange={(e) => setHoursToAdd(e.target.value)}
                 />
-                <button type="submit" disabled={isSaving}>
-                  {isSaving ? "Saving..." : "Add Hours"}
-                </button>
-              </form>
-            </section>
+              </label>
+              <button type="submit" disabled={isSaving}>
+                {isSaving ? "Saving..." : "Add Hours"}
+              </button>
+              <button type="button" onClick={closeAddHoursModal}>
+                Cancel
+              </button>
+            </form>
           </div>
-        )}
-      </>
-    );
-  };
+        </div>
+      )}
+    </div>
+  );
+
+  const AppRoutes = useMemo(
+    () => (
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user ? (
+              <StudentListPage
+                students={students}
+                newStudentName={newStudentName}
+                setNewStudentName={setNewStudentName}
+                newStudentId={newStudentId}
+                setNewStudentId={setNewStudentId}
+                hoursWorked={hoursWorked}
+                setHoursWorked={setHoursWorked}
+                handleSubmit={handleSubmit}
+                isSaving={isSaving}
+                error={error}
+              />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    ),
+    [
+      students,
+      newStudentName,
+      newStudentId,
+      hoursWorked,
+      handleSubmit,
+      openAddHoursModal,
+      isSaving,
+      error,
+      user,
+    ]
+  );
 
   return (
-    <div className="App tracker-page">
-      <main className="tracker-card">
-        <Routes>
-          <Route path="/" element={<StudentListPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </main>
+    <div className="App">
+      <AuthButton user={user} />
+      {user ? (
+        <div className="App tracker-page">
+          <main className="tracker-card">{AppRoutes}</main>
+        </div>
+      ) : (
+        <p style={{ textAlign: 'center', marginTop: '2rem' }}>
+          Sign in to view student points.
+        </p>
+      )}
     </div>
   );
 }
