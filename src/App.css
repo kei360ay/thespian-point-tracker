@@ -22,6 +22,33 @@
   text-align: left;
 }
 
+.page-content {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #f8efe2 0%, #d9e7f2 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  gap: 20px;
+}
+
+.welcome-card {
+  width: min(1120px, 100%);
+  background: #f5f6f8;
+  border: 1px solid #d5d9df;
+  border-radius: 20px;
+  padding: 20px 28px;
+  box-shadow: 0 8px 20px rgba(17, 32, 59, 0.08);
+  text-align: left;
+}
+
+.welcome-card h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #11203b;
+}
+
 h1,
 h2 {
   margin: 0 0 12px;
@@ -169,6 +196,23 @@ h2 {
   transition: width 0.35s ease;
 }
 
+.filter-button {
+  padding: 8px 12px;
+  background: #f7f9fc;
+  border: 2px solid #c4cad3;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  color: #0a1020;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.filter-button:hover {
+  background: #eff2f7;
+  border-color: #a8b2bf;
+}
+
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -176,6 +220,7 @@ h2 {
   display: grid;
   place-items: center;
   padding: 20px;
+  z-index: 1000;
 }
 
 .add-hours-modal {
