@@ -14,6 +14,7 @@ function App() {
   const [students, setStudents] = useState([]);
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentId, setNewStudentId] = useState("");
+  const [gradYear, setGradYear] = useState("");
   const [hoursWorked, setHoursWorked] = useState("");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
@@ -40,6 +41,7 @@ function App() {
         id: studentDoc.id,
         name: data.name,
         studentId: data.studentId,
+        gradYear: data.gradYear,
         hoursworked: hours,
         points: Number.isNaN(storedPoints)
           ? getPointsFromHours(hours)
@@ -66,6 +68,7 @@ function App() {
 
     const trimmedStudentName = newStudentName.trim();
     const trimmedStudentId = newStudentId.trim();
+    const trimmedGradYear = gradYear.trim();
     const parsedHours = Number(hoursWorked);
 
     if (!trimmedStudentName) {
@@ -75,6 +78,11 @@ function App() {
 
     if (!trimmedStudentId) {
       setError("Please enter a student ID.");
+      return;
+    }
+
+    if (!trimmedGradYear) {
+      setError("Please enter a graduation year.");
       return;
     }
 
@@ -91,12 +99,13 @@ function App() {
 
       await setDoc(
         doc(db, "students", studentDocId),
-        { name: trimmedStudentName, studentId: trimmedStudentId, hoursworked: parsedHours, points },
+        { name: trimmedStudentName, studentId: trimmedStudentId, gradYear: trimmedGradYear, hoursworked: parsedHours, points },
         { merge: true }
       );
 
       setNewStudentName("");
       setNewStudentId("");
+      setGradYear("");
       setHoursWorked("");
       await fetchStudents();
     } catch {
@@ -104,7 +113,7 @@ function App() {
     } finally {
       setIsSaving(false);
     }
-  }, [newStudentName, newStudentId, hoursWorked, fetchStudents]);
+  }, [newStudentName, newStudentId, gradYear, hoursWorked, fetchStudents]);
 
   const openAddHoursModal = useCallback((student) => {
     setError("");
@@ -163,6 +172,8 @@ function App() {
     setNewStudentName,
     newStudentId,
     setNewStudentId,
+    gradYear,
+    setGradYear,
     hoursWorked,
     setHoursWorked,
     handleSubmit,
@@ -204,6 +215,7 @@ function App() {
                 <div>
                   <h3>{student.name}</h3>
                   <p className="student-id">ID: {student.studentId}</p>
+                  <p className="student-id">Grad Year: {student.gradYear}</p>
                 </div>
                 <button
                   className="plus-button"
@@ -241,6 +253,12 @@ function App() {
               placeholder="Student ID"
               value={newStudentId}
               onChange={(e) => setNewStudentId(e.target.value)}
+            />
+            <input
+              type="text"
+              placeholder="Graduation Year"
+              value={gradYear}
+              onChange={(e) => setGradYear(e.target.value)}
             />
             <input
               type="number"
@@ -328,6 +346,8 @@ function App() {
           setNewStudentName={setNewStudentName}
           newStudentId={newStudentId}
           setNewStudentId={setNewStudentId}
+          gradYear={gradYear}
+          setGradYear={setGradYear}
           hoursWorked={hoursWorked}
           setHoursWorked={setHoursWorked}
           handleSubmit={handleSubmit}
