@@ -1,12 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 import './AddPoints.css';
 
 function AddPoints({ students, onAddPoints }) {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [hoursToAdd, setHoursToAdd] = useState('');
   const [pointsHistory, setPointsHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleAddPoints = (e) => {
+  // Fetch transaction history for selected student
+  useEffect(() => {
+    if (!selectedStudent) {
+      setPointsHistory([]);
+      return;
+    }
+
+    const fetchHistory = async () => {
+      try {
+        const q = query(
+          collection(db, 'transactions'),
+          where('studentId', '==', selectedStudent.id),
+          orderBy('timestamp', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        const history = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
+        }));
+        setPointsHistory(history);
+      } catch (error) {
+        console.error('Error fetching history:', error);
+      }
+    };
+
+    fetchHistory();
+  }, [selectedStudent]);
+
+  const handleAddPoints = async (e) => {
     e.preventDefault();
     
     if (!selectedStudent || !hoursToAdd || Number(hoursToAdd) <= 0) {
@@ -14,27 +46,49 @@ function AddPoints({ students, onAddPoints }) {
       return;
     }
 
+    setLoading(true);
     const hours = Number(hoursToAdd);
     const points = Math.floor(hours / 10);
     
-    const historyEntry = {
-      id: Date.now(),
-      studentName: selectedStudent.name,
-      studentId: selectedStudent.id,
-      hoursAdded: hours,
-      pointsAdded: points,
-      timestamp: new Date(),
-      type: 'add'
-    };
+    try {
+      // Add transaction to Firestore
+      await addDoc(collection(db, 'transactions'), {
+        studentId: selectedStudent.id,
+        studentName: selectedStudent.name,
+        hoursAdded: hours,
+        pointsAdded: points,
+        timestamp: new Date(),
+        type: 'add'
+      });
 
-    setPointsHistory(prev => [historyEntry, ...prev]);
-    onAddPoints(selectedStudent.id, hours);
-    
-    setHoursToAdd('');
-    setSelectedStudent(null);
+      // Call parent function to update student data
+      await onAddPoints(selectedStudent.id, hours);
+
+      // Refresh history
+      const q = query(
+        collection(db, 'transactions'),
+        where('studentId', '==', selectedStudent.id),
+        orderBy('timestamp', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      const history = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
+      }));
+      setPointsHistory(history);
+      
+      setHoursToAdd('');
+      alert('Points added successfully!');
+    } catch (error) {
+      console.error('Error adding points:', error);
+      alert('Error adding points');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRemovePoints = (e) => {
+  const handleRemovePoints = async (e) => {
     e.preventDefault();
     
     if (!selectedStudent || !hoursToAdd || Number(hoursToAdd) <= 0) {
@@ -42,24 +96,46 @@ function AddPoints({ students, onAddPoints }) {
       return;
     }
 
+    setLoading(true);
     const hours = Number(hoursToAdd);
     const points = Math.floor(hours / 10);
     
-    const historyEntry = {
-      id: Date.now(),
-      studentName: selectedStudent.name,
-      studentId: selectedStudent.id,
-      hoursRemoved: hours,
-      pointsRemoved: points,
-      timestamp: new Date(),
-      type: 'remove'
-    };
+    try {
+      // Add transaction to Firestore
+      await addDoc(collection(db, 'transactions'), {
+        studentId: selectedStudent.id,
+        studentName: selectedStudent.name,
+        hoursRemoved: hours,
+        pointsRemoved: points,
+        timestamp: new Date(),
+        type: 'remove'
+      });
 
-    setPointsHistory(prev => [historyEntry, ...prev]);
-    onAddPoints(selectedStudent.id, -hours);
-    
-    setHoursToAdd('');
-    setSelectedStudent(null);
+      // Call parent function to update student data
+      await onAddPoints(selectedStudent.id, -hours);
+
+      // Refresh history
+      const q = query(
+        collection(db, 'transactions'),
+        where('studentId', '==', selectedStudent.id),
+        orderBy('timestamp', 'desc')
+      );
+      const querySnapshot = await getDocs(q);
+      const history = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
+      }));
+      setPointsHistory(history);
+      
+      setHoursToAdd('');
+      alert('Points removed successfully!');
+    } catch (error) {
+      console.error('Error removing points:', error);
+      alert('Error removing points');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getStudentCurrentStats = () => {
@@ -137,17 +213,17 @@ function AddPoints({ students, onAddPoints }) {
                     type="button"
                     onClick={handleAddPoints}
                     className="btn btn-add"
-                    disabled={!selectedStudent}
+                    disabled={!selectedStudent || loading}
                   >
-                    ✓ Add Points
+                    {loading ? 'Saving...' : '✓ Add Points'}
                   </button>
                   <button
                     type="button"
                     onClick={handleRemovePoints}
                     className="btn btn-remove"
-                    disabled={!selectedStudent}
+                    disabled={!selectedStudent || loading}
                   >
-                    ✗ Remove Points
+                    {loading ? 'Saving...' : '✗ Remove Points'}
                   </button>
                 </div>
               </form>
@@ -186,7 +262,10 @@ function AddPoints({ students, onAddPoints }) {
                         </div>
                       </div>
                       <div className="history-time">
-                        {entry.timestamp.toLocaleTimeString()}
+                        {entry.timestamp instanceof Date 
+                          ? `${entry.timestamp.toLocaleDateString()} ${entry.timestamp.toLocaleTimeString()}`
+                          : new Date(entry.timestamp).toLocaleString()
+                        }
                       </div>
                     </div>
                   ))}
