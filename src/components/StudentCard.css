@@ -1,0 +1,149 @@
+.student-card {
+  background: white;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.student-card:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+  border-color: #1d4f91;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-title-section {
+  flex: 1;
+}
+
+.student-name {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #1f2937;
+  font-weight: 700;
+}
+
+.star-rating {
+  margin: 4px 0 0;
+  font-size: 0.95rem;
+  color: #fbbf24;
+}
+
+.quick-add-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 2px solid #e5e7eb;
+  background: #f9fafb;
+  color: #1f2937;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.quick-add-btn:hover {
+  background: #1d4f91;
+  color: white;
+  border-color: #1d4f91;
+  transform: scale(1.05);
+}
+
+.card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.detail-line {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+.label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.points-display {
+  margin: 8px 0 0;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.points-number {
+  color: #1d4f91;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.progress-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 20px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.remove-btn {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+}
+
+.remove-btn:hover {
+  background: #fecaca;
+  border-color: #dc2626;
+}
+
+@media (max-width: 640px) {
+  .student-card {
+    padding: 12px;
+  }
+
+  .student-name {
+    font-size: 1.15rem;
+  }
+}
