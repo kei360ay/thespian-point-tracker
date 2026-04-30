@@ -58,7 +58,8 @@ function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
             className="progress-bar-fill"
             style={{ 
               width: `${getProgressPercent(student.points)}%`,
-              backgroundColor: getProgressColor(student.points)
+              backgroundColor: getProgressColor(student.points),
+              background: getProgressColor(student.points)
             }}
           ></div>
         </div>
