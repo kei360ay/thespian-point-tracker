@@ -3,11 +3,12 @@ import './StudentCard.css';
 function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
   const getProgressPercent = (points) => Math.max(0, Math.min(100, Number(points) * 10));
   const getStarRating = (points) => {
-    if (points >= 60) return '⭐⭐⭐⭐⭐';
-    if (points >= 20) return '⭐⭐⭐⭐';
-    if (points >= 10) return '⭐⭐⭐';
-    if (points >= 5) return '⭐⭐';
-    return '⭐';
+    if (points >= 50) return '⭐⭐⭐⭐⭐';
+    if (points >= 40) return '⭐⭐⭐⭐';
+    if (points >= 30) return '⭐⭐⭐';
+    if (points >= 20) return '⭐⭐';
+    if (points >= 10) return '⭐';
+    return '';
   };
 
   return (
