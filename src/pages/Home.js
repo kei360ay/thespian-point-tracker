@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import StudentCard from '../components/StudentCard';
 import './Home.css';
 
@@ -11,7 +11,7 @@ function Home({ students, user, onAddHoursModal }) {
     let filtered = students.filter(student => {
       const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            student.studentId?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesYear = filterYear === 'all' || student.gradYear === Number(filterYear);
+      const matchesYear = filterYear === 'all' || student.gradYear === filterYear;
       return matchesSearch && matchesYear;
     });
 
@@ -34,8 +34,8 @@ function Home({ students, user, onAddHoursModal }) {
     return filtered;
   }, [students, sortOrder, filterYear, searchTerm]);
 
-  const filteredStudents = getFilteredAndSortedStudents();
-  const years = [...new Set(students.map(s => s.gradYear))].sort().reverse();
+  const filteredStudents = useMemo(getFilteredAndSortedStudents, [getFilteredAndSortedStudents]);
+  const years = useMemo(() => [...new Set(students.map(s => s.gradYear))].sort().reverse(), [students]);
 
   return (
     <div className="home-page">

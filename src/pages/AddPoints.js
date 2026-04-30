@@ -63,23 +63,27 @@ function AddPoints({ students, onAddPoints }) {
 
       // Call parent function to update student data
       await onAddPoints(selectedStudent.id, hours);
-
-      // Refresh history
-      const q = query(
-        collection(db, 'transactions'),
-        where('studentId', '==', selectedStudent.id),
-        orderBy('timestamp', 'desc')
-      );
-      const querySnapshot = await getDocs(q);
-      const history = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
-      }));
-      setPointsHistory(history);
       
       setHoursToAdd('');
-      alert('Points added successfully!');
+      alert('Added points!');
+
+      // Refresh history (silently handle errors)
+      try {
+        const q = query(
+          collection(db, 'transactions'),
+          where('studentId', '==', selectedStudent.id),
+          orderBy('timestamp', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        const history = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
+        }));
+        setPointsHistory(history);
+      } catch (historyError) {
+        console.error('Error refreshing history:', historyError);
+      }
     } catch (error) {
       console.error('Error adding points:', error);
       alert('Error adding points');
@@ -114,22 +118,26 @@ function AddPoints({ students, onAddPoints }) {
       // Call parent function to update student data
       await onAddPoints(selectedStudent.id, -hours);
 
-      // Refresh history
-      const q = query(
-        collection(db, 'transactions'),
-        where('studentId', '==', selectedStudent.id),
-        orderBy('timestamp', 'desc')
-      );
-      const querySnapshot = await getDocs(q);
-      const history = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
-      }));
-      setPointsHistory(history);
-      
       setHoursToAdd('');
-      alert('Points removed successfully!');
+      alert('Points removed!');
+
+      // Refresh history (silently handle errors)
+      try {
+        const q = query(
+          collection(db, 'transactions'),
+          where('studentId', '==', selectedStudent.id),
+          orderBy('timestamp', 'desc')
+        );
+        const querySnapshot = await getDocs(q);
+        const history = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
+        }));
+        setPointsHistory(history);
+      } catch (historyError) {
+        console.error('Error refreshing history:', historyError);
+      }
     } catch (error) {
       console.error('Error removing points:', error);
       alert('Error removing points');
