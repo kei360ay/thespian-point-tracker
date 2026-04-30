@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { collection, getDocs, setDoc, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { collection, setDoc, doc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { db, auth } from './firebase';
 import Navbar from './components/Navbar';
@@ -16,6 +16,7 @@ function App() {
   const [isAddHoursModalOpen, setIsAddHoursModalOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [hoursToAdd, setHoursToAdd] = useState('');
+  const unsubscribeRef = useRef(null);
 
   // Check auth state
   useEffect(() => {
@@ -26,31 +27,34 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // Fetch students from Firebase
-  const fetchStudents = useCallback(async () => {
+  // Set up real-time listener for students (instead of polling)
+  useEffect(() => {
     if (!user) {
       setStudents([]);
+      if (unsubscribeRef.current) {
+        unsubscribeRef.current();
+      }
       return;
     }
 
-    try {
-      const querySnapshot = await getDocs(collection(db, 'students'));
-      const studentsData = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      setStudents(studentsData);
-    } catch (error) {
-      console.error('Error fetching students:', error);
-    }
-  }, [user]);
+    // Set up real-time listener
+    const unsubscribe = onSnapshot(
+      collection(db, 'students'),
+      (querySnapshot) => {
+        const studentsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setStudents(studentsData);
+      },
+      (error) => {
+        console.error('Error fetching students:', error);
+      }
+    );
 
-  // Fetch students when user logs in
-  useEffect(() => {
-    if (user) {
-      fetchStudents();
-    }
-  }, [user, fetchStudents]);
+    unsubscribeRef.current = unsubscribe;
+    return () => unsubscribe();
+  }, [user]);
 
   // Add new student
   const handleAddStudent = useCallback(async (studentData) => {
@@ -69,8 +73,7 @@ function App() {
 
       const docRef = doc(collection(db, 'students'));
       await setDoc(docRef, newStudent);
-
-      setStudents(prev => [...prev, { id: docRef.id, ...newStudent }]);
+      // Real-time listener will handle UI update
     } catch (error) {
       console.error('Error adding student:', error);
       alert('Error adding student');
@@ -83,7 +86,7 @@ function App() {
 
     try {
       await deleteDoc(doc(db, 'students', studentId));
-      setStudents(prev => prev.filter(s => s.id !== studentId));
+      // Real-time listener will handle UI update
     } catch (error) {
       console.error('Error removing student:', error);
       alert('Error removing student');
@@ -106,14 +109,7 @@ function App() {
         hoursWorked: newHours,
         points: newPoints,
       });
-
-      setStudents(prev =>
-        prev.map(s =>
-          s.id === studentId
-            ? { ...s, hoursWorked: newHours, points: newPoints }
-            : s
-        )
-      );
+      // Real-time listener will handle UI update
     } catch (error) {
       console.error('Error updating points:', error);
       alert('Error updating points');

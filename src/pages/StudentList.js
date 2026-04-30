@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getRankInfo } from '../utils/rankUtils';
 import './StudentList.css';
 
 function StudentList({ students, onAddStudent, onRemoveStudent }) {
@@ -30,21 +31,6 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
       });
       setShowAddForm(false);
     }
-  };
-
-  const getRank = (points) => {
-    if (points >= 60) return 'Honor Thespian';
-    if (points >= 20) return 'National Thespian';
-    if (points >= 10) return 'Thespian';
-    return 'Apprentice';
-  };
-
-  const getYearsToNextRank = (hours) => {
-    const points = Math.floor(hours / 10);
-    if (points >= 60) return 0;
-    if (points >= 20) return Math.ceil((60 - points) / 1);
-    if (points >= 10) return Math.ceil((20 - points) / 1);
-    return Math.ceil((10 - points) / 1);
   };
 
   return (
@@ -139,13 +125,15 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
               <p>No students yet. Add one to get started!</p>
             </div>
           ) : (
-            students.map(student => (
+            students.map(student => {
+              const rankInfo = getRankInfo(student.points);
+              return (
               <div key={student.id} className="student-list-item">
                 <div className="item-header">
                   <div className="student-info">
                     <h3>{student.name}</h3>
                     <div className="meta-info">
-                      <span className="badge">{getRank(student.points)}</span>
+                      <span className="badge">{rankInfo.rank}</span>
                       <span className="id">ID: {student.studentId || 'N/A'}</span>
                     </div>
                   </div>
@@ -182,11 +170,12 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
                   </div>
                   <div className="detail-column">
                     <span className="detail-label">Points to Next Rank</span>
-                    <span className="detail-value">{getYearsToNextRank(student.hoursWorked)}</span>
+                    <span className="detail-value">{rankInfo.pointsToNext}</span>
                   </div>
                 </div>
               </div>
-            ))
+            );
+            })
           )}
         </div>
       </div>
