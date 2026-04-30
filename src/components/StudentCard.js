@@ -13,7 +13,6 @@ function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
     const colors = ['#10b981', '#f59e0b', '#ff6b35', '#dc2626', '#10b981', '#eab308']; // green, yellow, orange, red, green, yellow
     return colors[tier % colors.length];
   };
-
   const getStarRating = (points) => {
     if (points >= 50) return '⭐⭐⭐⭐⭐';
     if (points >= 40) return '⭐⭐⭐⭐';
