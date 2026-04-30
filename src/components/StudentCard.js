@@ -1,13 +1,25 @@
 import './StudentCard.css';
 
 function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
-  const getProgressPercent = (points) => Math.max(0, Math.min(100, Number(points) * 10));
+ const getProgressPercent = (points) => {
+    const numPoints = Number(points);
+    const progressInTier = numPoints % 10;
+    return Math.min(100, progressInTier * 10);
+  };
+
+  const getProgressColor = (points) => {
+    const numPoints = Number(points);
+    const tier = Math.floor(numPoints / 10);
+    const colors = ['#10b981', '#f59e0b', '#ff6b35', '#dc2626', '#10b981', '#eab308']; // green, yellow, orange, red, green, yellow
+    return colors[tier % colors.length];
+  };
   const getStarRating = (points) => {
-    if (points >= 60) return '⭐⭐⭐⭐⭐';
-    if (points >= 20) return '⭐⭐⭐⭐';
-    if (points >= 10) return '⭐⭐⭐';
-    if (points >= 5) return '⭐⭐';
-    return '⭐';
+    if (points >= 50) return '⭐⭐⭐⭐⭐';
+    if (points >= 40) return '⭐⭐⭐⭐';
+    if (points >= 30) return '⭐⭐⭐';
+    if (points >= 20) return '⭐⭐';
+    if (points >= 10) return '⭐';
+    return '';
   };
 
   return (
@@ -43,8 +55,13 @@ function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
         <div className="progress-bar-container">
           <div 
             className="progress-bar-fill"
-            style={{ width: `${getProgressPercent(student.points)}%` }}
-          ></div>
+            style={{ 
+              width: `${getProgressPercent(student.points)}%`,
+              backgroundColor: getProgressColor(student.points),
+              background: getProgressColor(student.points)            
+              }}          
+              > 
+            </div>
         </div>
       </div>
 
