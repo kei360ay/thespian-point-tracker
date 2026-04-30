@@ -11,7 +11,7 @@ function Home({ students, user, onAddHoursModal }) {
     let filtered = students.filter(student => {
       const matchesSearch = student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            student.studentId?.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesYear = filterYear === 'all' || student.gradYear === filterYear;
+      const matchesYear = filterYear === 'all' || student.gradYear === Number(filterYear);
       return matchesSearch && matchesYear;
     });
 
