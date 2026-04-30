@@ -1,7 +1,7 @@
 import './StudentCard.css';
 
 function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
- const getProgressPercent = (points) => {
+  const getProgressPercent = (points) => {
     const numPoints = Number(points);
     const progressInTier = numPoints % 10;
     return Math.min(100, progressInTier * 10);
@@ -58,10 +58,9 @@ function StudentCard({ student, onAddHours, onRemoveStudent, onViewDetails }) {
             style={{ 
               width: `${getProgressPercent(student.points)}%`,
               backgroundColor: getProgressColor(student.points),
-              background: getProgressColor(student.points)            
-              }}          
-              > 
-            </div>
+              background: getProgressColor(student.points)
+            }}
+          ></div>
         </div>
       </div>
 
