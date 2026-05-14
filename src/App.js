@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { collection, setDoc, doc, deleteDoc, updateDoc, onSnapshot } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { db, auth } from './firebase';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -11,6 +11,7 @@ import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isApproved, setIsApproved] = useState(false);
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAddHoursModalOpen, setIsAddHoursModalOpen] = useState(false);
@@ -18,14 +19,36 @@ function App() {
   const [hoursToAdd, setHoursToAdd] = useState('');
   const unsubscribeRef = useRef(null);
 
-  // Check auth state
+  // List of approved email addresses from Firestore security rules
+  const APPROVED_EMAILS = [
+    '270968@hkis.edu.hk',
+    'tstudniski@hkis.edu.hk',
+    '280224@hkis.edu.hk',
+  ];
+
+  // Check auth state and verify approved email
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        const isEmailApproved = APPROVED_EMAILS.includes(currentUser.email);
+        if (isEmailApproved) {
+          setUser(currentUser);
+          setIsApproved(true);
+        } else {
+          // Sign out user if email is not approved
+          await signOut(auth);
+          setUser(null);
+          setIsApproved(false);
+          alert(`Access denied. Your email (${currentUser.email}) is not authorized to use this application.`);
+        }
+      } else {
+        setUser(null);
+        setIsApproved(false);
+      }
       setLoading(false);
     });
     return () => unsubscribe();
-  }, []);
+  }, [APPROVED_EMAILS]);
 
   // Set up real-time listener for students (instead of polling)
   useEffect(() => {

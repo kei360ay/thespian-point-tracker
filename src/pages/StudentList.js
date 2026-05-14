@@ -7,8 +7,10 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
   const [formData, setFormData] = useState({
     name: '',
     studentId: '',
+    thespianId: '',
     gradYear: new Date().getFullYear(),
-    hoursWorked: 0
+    hoursWorked: 0,
+    role: ''
   });
 
   const handleChange = (e) => {
@@ -26,8 +28,10 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
       setFormData({
         name: '',
         studentId: '',
+        thespianId: '',
         gradYear: new Date().getFullYear(),
-        hoursWorked: 0
+        hoursWorked: 0,
+        role: ''
       });
       setShowAddForm(false);
     }
@@ -74,6 +78,18 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
                     onChange={handleChange}
                     placeholder="Enter student ID"
                   />
+
+                <div className="form-group">
+                  <label htmlFor="thespianId">Thespian ID</label>
+                  <input
+                    type="text"
+                    id="thespianId"
+                    name="thespianId"
+                    value={formData.thespianId}
+                    onChange={handleChange}
+                    placeholder="Enter thespian ID"
+                  />
+                </div>
                 </div>
 
                 <div className="form-row">
@@ -104,6 +120,18 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
                   </div>
                 </div>
 
+                <div className="form-group">
+                  <label htmlFor="role">Role</label>
+                  <input
+                    type="text"
+                    id="role"
+                    name="role"
+                    value={formData.role}
+                    onChange={handleChange}
+                    placeholder="e.g., Actor, Crew, Tech"
+                  />
+                </div>
+
                 <div className="form-actions">
                   <button type="submit" className="submit-btn">Add Student</button>
                   <button 
@@ -131,7 +159,7 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
               <div key={student.id} className="student-list-item">
                 <div className="item-header">
                   <div className="student-info">
-                    <h3>{student.name}</h3>
+                    <h3>{student.name} {student.role && <span className="role">{student.role}</span>}</h3>
                     <div className="meta-info">
                       <span className="badge">{rankInfo.rank}</span>
                       <span className="id">ID: {student.studentId || 'N/A'}</span>
