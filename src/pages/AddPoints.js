@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { collection, addDoc, query, where, orderBy, getDocs } from 'firebase/firestore';
+import { collection, addDoc, query, orderBy, getDocs, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase';
 import './AddPoints.css';
 
@@ -7,36 +7,42 @@ function AddPoints({ students, onAddPoints }) {
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [hoursToAdd, setHoursToAdd] = useState('');
   const [pointsHistory, setPointsHistory] = useState([]);
+  const [allTransactions, setAllTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [historyError, setHistoryError] = useState('');
 
-  // Fetch transaction history for selected student
+  // Set up real-time listener for all transactions
+  useEffect(() => {
+    try {
+      const q = query(collection(db, 'transactions'), orderBy('timestamp', 'desc'));
+      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+        const transactions = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
+        }));
+        setAllTransactions(transactions);
+        setHistoryError('');
+      }, (error) => {
+        console.error('Error fetching transactions:', error);
+        setHistoryError(`Error loading history: ${error.message}`);
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Error setting up transaction listener:', error);
+      setHistoryError(`Error: ${error.message}`);
+    }
+  }, []);
+
+  // Filter transactions for selected student
   useEffect(() => {
     if (!selectedStudent) {
       setPointsHistory([]);
       return;
     }
-
-    const fetchHistory = async () => {
-      try {
-        const q = query(
-          collection(db, 'transactions'),
-          where('studentId', '==', selectedStudent.id),
-          orderBy('timestamp', 'desc')
-        );
-        const querySnapshot = await getDocs(q);
-        const history = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
-        }));
-        setPointsHistory(history);
-      } catch (error) {
-        console.error('Error fetching history:', error);
-      }
-    };
-
-    fetchHistory();
-  }, [selectedStudent]);
+    const filtered = allTransactions.filter(t => t.studentId === selectedStudent.id);
+    setPointsHistory(filtered);
+  }, [selectedStudent, allTransactions]);
 
   const handleAddPoints = async (e) => {
     e.preventDefault();
@@ -65,28 +71,11 @@ function AddPoints({ students, onAddPoints }) {
       await onAddPoints(selectedStudent.id, hours);
       
       setHoursToAdd('');
-      alert('Added points!');
-
-      // Refresh history (silently handle errors)
-      try {
-        const q = query(
-          collection(db, 'transactions'),
-          where('studentId', '==', selectedStudent.id),
-          orderBy('timestamp', 'desc')
-        );
-        const querySnapshot = await getDocs(q);
-        const history = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
-        }));
-        setPointsHistory(history);
-      } catch (historyError) {
-        console.error('Error refreshing history:', historyError);
-      }
+      alert('Points added successfully!');
+      // Real-time listener will automatically update the history
     } catch (error) {
       console.error('Error adding points:', error);
-      alert('Error adding points');
+      alert(`Error adding points: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -119,28 +108,11 @@ function AddPoints({ students, onAddPoints }) {
       await onAddPoints(selectedStudent.id, -hours);
 
       setHoursToAdd('');
-      alert('Points removed!');
-
-      // Refresh history (silently handle errors)
-      try {
-        const q = query(
-          collection(db, 'transactions'),
-          where('studentId', '==', selectedStudent.id),
-          orderBy('timestamp', 'desc')
-        );
-        const querySnapshot = await getDocs(q);
-        const history = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          timestamp: doc.data().timestamp?.toDate?.() || new Date(doc.data().timestamp)
-        }));
-        setPointsHistory(history);
-      } catch (historyError) {
-        console.error('Error refreshing history:', historyError);
-      }
+      alert('Points removed successfully!');
+      // Real-time listener will automatically update the history
     } catch (error) {
       console.error('Error removing points:', error);
-      alert('Error removing points');
+      alert(`Error removing points: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -240,11 +212,21 @@ function AddPoints({ students, onAddPoints }) {
 
           <div className="history-section">
             <div className="history-card">
-              <h2>Transaction History</h2>
+              <h2>Transaction History {selectedStudent && `- ${selectedStudent.name}`}</h2>
               
-              {pointsHistory.length === 0 ? (
+              {historyError && (
+                <div className="error-message">
+                  <p>⚠️ {historyError}</p>
+                </div>
+              )}
+              
+              {!selectedStudent ? (
                 <div className="empty-history">
-                  <p>No transactions yet</p>
+                  <p>Select a student to view their transaction history</p>
+                </div>
+              ) : pointsHistory.length === 0 ? (
+                <div className="empty-history">
+                  <p>No transactions yet for {selectedStudent.name}</p>
                 </div>
               ) : (
                 <div className="history-list">
@@ -253,7 +235,7 @@ function AddPoints({ students, onAddPoints }) {
                       <div className="history-main">
                         <div className="history-student">
                           <span className="student-name">{entry.studentName}</span>
-                          <span className="student-id">{entry.studentId}</span>
+                          <span className="student-id">ID: {entry.studentId || 'N/A'}</span>
                         </div>
                         <div className="history-action">
                           {entry.type === 'add' ? (
