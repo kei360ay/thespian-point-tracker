@@ -28,6 +28,12 @@ const StudentCard = React.memo(function StudentCard({ student, onAddHours, onRem
           <span className="label">ID:</span> {student.studentId || 'N/A'}
         </p>
         <p className="detail-line">
+          <span className="label">Email:</span> {student.email || 'N/A'}
+        </p>
+        <p className="detail-line">
+          <span className="label">ITS #:</span> {student.itsNumber || 'N/A'}
+        </p>
+        <p className="detail-line">
           <span className="label">Grad Year:</span> {student.gradYear || 'N/A'}
         </p>
         <p className="rank-display">

@@ -87,6 +87,8 @@ function App() {
       const newStudent = {
         name: studentData.name.trim(),
         studentId: studentData.studentId.trim(),
+        email: studentData.email?.trim() || '',
+        itsNumber: studentData.itsNumber?.trim() || '',
         gradYear: studentData.gradYear,
         hoursWorked: studentData.hoursWorked || 0,
         points: Math.floor((studentData.hoursWorked || 0) / 10),
@@ -172,105 +174,105 @@ function App() {
     );
   }
 
+  if (!user) {
+    return (
+      <div>
+        <Navbar user={null} />
+      </div>
+    );
+  }
+
   return (
     <div className="App">
       <Navbar user={user} />
 
-      {user ? (
-        <>
-          <Routes>
-            <Route
-              path="/"
-              element={<Home students={students} user={user} onAddHoursModal={openAddHoursModal} />}
+      <Routes>
+        <Route
+          path="/"
+          element={<Home students={students} user={user} onAddHoursModal={openAddHoursModal} />}
+        />
+        <Route
+          path="/students"
+          element={
+            <StudentList
+              students={students}
+              onAddStudent={handleAddStudent}
+              onRemoveStudent={handleRemoveStudent}
             />
-            <Route
-              path="/students"
-              element={
-                <StudentList
-                  students={students}
-                  onAddStudent={handleAddStudent}
-                  onRemoveStudent={handleRemoveStudent}
-                />
-              }
+          }
+        />
+        <Route
+          path="/add-points"
+          element={
+            <AddPoints
+              students={students}
+              onAddPoints={handleAddPoints}
             />
-            <Route
-              path="/add-points"
-              element={
-                <AddPoints
-                  students={students}
-                  onAddPoints={handleAddPoints}
-                />
-              }
-            />
-          </Routes>
+          }
+        />
+      </Routes>
 
-          {isAddHoursModalOpen && (
-            <div className="modal-overlay">
-              <div className="add-hours-modal">
-                <button
-                  className="close-circle-button"
-                  onClick={closeAddHoursModal}
-                  type="button"
-                >
-                  ✕
-                </button>
-                <h2>Add Hours for {selectedStudent?.name}</h2>
-                <form onSubmit={handleAddHoursSubmit}>
-                  <div style={{ marginBottom: '14px' }}>
-                    <label htmlFor="modal-hours-input" style={{ display: 'block', marginBottom: '6px', fontWeight: '600' }}>
-                      Hours to Add:
-                    </label>
-                    <input
-                      id="modal-hours-input"
-                      type="number"
-                      value={hoursToAdd}
-                      onChange={(e) => setHoursToAdd(e.target.value)}
-                      style={{ width: '100%', padding: '10px', border: '1px solid #d5d9df', borderRadius: '8px' }}
-                      min="0"
-                      step="1"
-                    />
-                    <small style={{ color: '#6b7280', marginTop: '4px', display: 'block' }}>
-                      Will result in {Math.floor(Number(hoursToAdd || 0) / 10)} points
-                    </small>
-                  </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    <button
-                      type="submit"
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: '#1d4f91',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Add Hours
-                    </button>
-                    <button
-                      type="button"
-                      onClick={closeAddHoursModal}
-                      style={{
-                        flex: 1,
-                        padding: '10px',
-                        background: '#f5f6f8',
-                        border: '1px solid #d5d9df',
-                        borderRadius: '8px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
+      {isAddHoursModalOpen && (
+        <div className="modal-overlay">
+          <div className="add-hours-modal">
+            <button
+              className="close-circle-button"
+              onClick={closeAddHoursModal}
+              type="button"
+            >
+              ✕
+            </button>
+            <h2>Add Hours for {selectedStudent?.name}</h2>
+            <form onSubmit={handleAddHoursSubmit}>
+              <div style={{ marginBottom: '14px' }}>
+                <label htmlFor="modal-hours-input" style={{ display: 'block', marginBottom: '6px', fontWeight: '600' }}>
+                  Hours to Add:
+                </label>
+                <input
+                  id="modal-hours-input"
+                  type="number"
+                  value={hoursToAdd}
+                  onChange={(e) => setHoursToAdd(e.target.value)}
+                  style={{ width: '100%', padding: '10px', border: '1px solid #d5d9df', borderRadius: '8px' }}
+                  min="0"
+                  step="1"
+                />
+                <small style={{ color: '#6b7280', marginTop: '4px', display: 'block' }}>
+                  Will result in {Math.floor(Number(hoursToAdd || 0) / 10)} points
+                </small>
               </div>
-            </div>
-          )}
-        </>
-      ) : (
-        <div style={{ textAlign: 'center', marginTop: '2rem', fontSize: '1.2rem', color: '#666' }}>
-          <p>Please sign in to view student points.</p>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button
+                  type="submit"
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    background: '#1d4f91',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Add Hours
+                </button>
+                <button
+                  type="button"
+                  onClick={closeAddHoursModal}
+                  style={{
+                    flex: 1,
+                    padding: '10px',
+                    background: '#f5f6f8',
+                    border: '1px solid #d5d9df',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

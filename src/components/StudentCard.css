@@ -66,18 +66,25 @@
 .card-details {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  padding: 12px 0;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .detail-line {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .label {
   font-weight: 600;
   color: #374151;
+  min-width: 70px;
 }
 
 .points-display {
@@ -90,6 +97,24 @@
   color: #1d4f91;
   font-size: 1.3rem;
   font-weight: 700;
+}
+
+.rank-display {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rank-name {
+  background: linear-gradient(135deg, #1d4f91 0%, #2563eb 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.85rem;
 }
 
 .progress-section {

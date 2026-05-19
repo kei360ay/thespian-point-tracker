@@ -7,6 +7,8 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
   const [formData, setFormData] = useState({
     name: '',
     studentId: '',
+    email: '',
+    itsNumber: '',
     thespianId: '',
     gradYear: new Date().getFullYear(),
     hoursWorked: 0,
@@ -28,6 +30,8 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
       setFormData({
         name: '',
         studentId: '',
+        email: '',
+        itsNumber: '',
         thespianId: '',
         gradYear: new Date().getFullYear(),
         hoursWorked: 0,
@@ -78,6 +82,31 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
                     onChange={handleChange}
                     placeholder="Enter student ID"
                   />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email">Email Address</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Enter email address"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="itsNumber">ITS Number</label>
+                  <input
+                    type="text"
+                    id="itsNumber"
+                    name="itsNumber"
+                    value={formData.itsNumber}
+                    onChange={handleChange}
+                    placeholder="Enter ITS number"
+                  />
+                </div>
 
                 <div className="form-group">
                   <label htmlFor="thespianId">Thespian ID</label>
@@ -89,7 +118,6 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
                     onChange={handleChange}
                     placeholder="Enter thespian ID"
                   />
-                </div>
                 </div>
 
                 <div className="form-row">
@@ -181,6 +209,14 @@ function StudentList({ students, onAddStudent, onRemoveStudent }) {
                   <div className="detail-column">
                     <span className="detail-label">Graduation Year</span>
                     <span className="detail-value">{student.gradYear || 'N/A'}</span>
+                  </div>
+                  <div className="detail-column">
+                    <span className="detail-label">Email</span>
+                    <span className="detail-value">{student.email || 'N/A'}</span>
+                  </div>
+                  <div className="detail-column">
+                    <span className="detail-label">ITS Number</span>
+                    <span className="detail-value">{student.itsNumber || 'N/A'}</span>
                   </div>
                   <div className="detail-column">
                     <span className="detail-label">Join Date</span>
